@@ -1,0 +1,57 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class CardZoom : MonoBehaviour
+{
+    public GameObject canvas;
+    private GameObject zoomCard;
+
+    public void Awake()
+    {
+        canvas = GameObject.Find("Main Canvas");
+        if (canvas == null)
+        {
+            Debug.LogError("Canvas not found!");
+        }
+    }
+
+    public void OnHoverEnter()
+    {
+        if (canvas == null)
+        {
+            Debug.LogError("Canvas not set!");
+            return;
+        }
+
+        zoomCard = Instantiate(gameObject, new Vector2(190, 540), Quaternion.identity);
+        zoomCard.transform.SetParent(canvas.transform, false);
+        zoomCard.layer = LayerMask.NameToLayer("Zoom");
+
+        // Disable all colliders on the zoomed-in card
+        Collider2D[] colliders = zoomCard.GetComponentsInChildren<Collider2D>();
+        foreach (Collider2D collider in colliders)
+        {
+            collider.enabled = false;
+        }
+
+        // Adjust the RectTransform size
+        RectTransform rect = zoomCard.GetComponent<RectTransform>();
+        if (rect != null)
+        {
+            rect.sizeDelta = new Vector2(384, 534);
+        }
+        else
+        {
+            Debug.LogError("RectTransform not found on zoomCard!");
+        }
+    }
+
+    public void OnHoverExit()
+    {
+        if (zoomCard != null)
+        {
+            Destroy(zoomCard);
+        }
+    }
+}
