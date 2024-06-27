@@ -1,0 +1,85 @@
+using System.Collections.Generic;
+using UnityEngine;
+using TMPro;  // For TextMeshPro
+
+public class ZoneManager : MonoBehaviour
+{
+    private List<ResourceCard> resourceCards = new List<ResourceCard>();
+    public TextMeshProUGUI resourceDisplay;  // Use TextMeshProUGUI if using TextMeshPro
+    public int maxCards = 10;  // Maximum number of cards allowed in the drop zone
+
+    private void Start()
+    {
+        UpdateResourceDisplay();
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        ResourceCard card = collision.GetComponent<ResourceCard>();
+        if (card != null)
+        {
+            if (gameObject.CompareTag("DropZone"))
+            {
+                if (resourceCards.Count < maxCards)
+                {
+                    resourceCards.Add(card);
+                }
+                else
+                {
+                    // Reject the card if the limit is reached
+                    card.GetComponent<DragDrop>().ReturnToStartPosition();
+                    return;
+                }
+            }
+            else if (gameObject.CompareTag("PlayerArea"))
+            {
+                resourceCards.Add(card);
+            }
+            UpdateResourceDisplay();
+        }
+    }
+
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        ResourceCard card = collision.GetComponent<ResourceCard>();
+        if (card != null)
+        {
+            resourceCards.Remove(card);
+            UpdateResourceDisplay();
+        }
+    }
+
+    private void UpdateResourceDisplay()
+    {
+        if (resourceDisplay != null)
+        {
+            resourceDisplay.text = "Resources:\n";
+            Dictionary<string, int> resourceCounts = new Dictionary<string, int>();
+            foreach (var card in resourceCards)
+            {
+                if (resourceCounts.ContainsKey(card.resourceType))
+                {
+                    resourceCounts[card.resourceType]++;
+                }
+                else
+                {
+                    resourceCounts[card.resourceType] = 1;
+                }
+            }
+            foreach (var resource in resourceCounts)
+            {
+                resourceDisplay.text += $"{resource.Key}: {resource.Value}\n";
+            }
+        }
+    }
+
+    public void ClearAllCards()
+    {
+        foreach (Transform child in transform)
+        {
+            Destroy(child.gameObject);
+        }
+        resourceCards.Clear();
+        UpdateResourceDisplay();
+    }
+}
