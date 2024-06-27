@@ -1,0 +1,13 @@
+using UnityEngine;
+
+public class ClearCardsButton : MonoBehaviour
+{
+    public void ClearAllZones()
+    {
+        ZoneManager[] zoneManagers = FindObjectsOfType<ZoneManager>();
+        foreach (ZoneManager zoneManager in zoneManagers)
+        {
+            zoneManager.ClearAllCards();
+        }
+    }
+}
